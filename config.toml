@@ -1,0 +1,141 @@
+baseURL = "/"
+languageCode = "en-us"
+title = "nkid00::journal"
+theme = "terminal"
+paginate = 10
+
+[params]
+  # dir name of your main content (default is `content/posts`).
+  # the list of set content will show up on your index page (baseurl).
+  contentTypeName = "posts"
+
+  # ["orange", "blue", "red", "green", "pink"]
+  themeColor = "f09199"
+
+  # if you set this to 0, only submenu trigger will be visible
+  # showMenuItems = 2
+
+  # show selector to switch language
+  showLanguageSelector = true
+
+  # set theme to full screen width
+  fullWidthTheme = false
+
+  # center theme with default width
+  centerTheme = true
+
+  # if your resource directory contains an image called `cover.(jpg|png|webp)`,
+  # then the file will be used as a cover automatically.
+  # With this option you don't have to put the `cover` param in a front-matter.
+  autoCover = true
+
+  # set post to show the last updated
+  # If you use git, you can set `enableGitInfo` to `true` and then post will automatically get the last updated
+  showLastUpdated = false
+
+  # set a custom favicon (default is a `themeColor` square)
+  favicon = "favicon.ico"
+
+  # Provide a string as a prefix for the last update date. By default, it looks like this: 2020-xx-xx [Updated: 2020-xx-xx] :: Author
+  # updatedDatePrefix = "Updated"
+
+  # set all headings to their default size (depending on browser settings)
+  # oneHeadingSize = true # default
+
+  # whether to show a page's estimated reading time
+  readingTime = false # default
+
+  # whether to show a table of contents
+  # can be overridden in a page's front-matter
+  # Toc = false # default
+
+  # set title for the table of contents
+  # can be overridden in a page's front-matter
+  # TocTitle = "Table of Contents" # default
+
+[languages]
+  [languages.en]
+    languageName = "en_US.UTF-8"
+    subtitle = "NKID00's journal"
+    owner = ""
+    keywords = ""
+    readMore = "Read more"
+    readOtherPosts = "Read other posts"
+    newerPosts = "Newer posts"
+    olderPosts = "Older posts"
+    missingContentMessage = "Not Found"
+    missingBackButtonLabel = "Back to home page"
+    minuteReadingTime = "min read"
+    words = "words"
+    menuTrigger = "locale"
+    menuTriggerMobile = "menu"
+    contentDir = "content/en"
+
+    [languages.en.params.logo]
+      logoText = "nkid00::journal"
+      logoHomeLink = "/"
+
+    [languages.en.menu]
+      [[languages.en.menu.main]]
+        identifier = "0-journal"
+        name = "Journal"
+        url = "/posts/"
+      [[languages.en.menu.main]]
+        identifier = "1-tags"
+        name = "Tags"
+        url = "/tags/"
+      [[languages.en.menu.main]]
+        identifier = "2-rss"
+        name = "RSS"
+        url = "/index.xml"
+      [[languages.en.menu.main]]
+        identifier = "3-about"
+        name = "About"
+        url = "/about/"
+      [[languages.en.menu.main]]
+        identifier = "4-more"
+        name = "More"
+        url = "https://nkid00.name"
+
+  [languages.zh]
+    languageName = "zh_CN.UTF-8"
+    subtitle = "NKID00 的日志"
+    owner = ""
+    keywords = ""
+    readMore = "更多"
+    readOtherPosts = "其他文章"
+    newerPosts = "新"
+    olderPosts = "旧"
+    missingContentMessage = "Not Found"
+    missingBackButtonLabel = "返回"
+    minuteReadingTime = "min read"
+    words = "words"
+    menuTrigger = "语言"
+    menuTriggerMobile = "选项"
+    contentDir = "content/zh"
+
+    [languages.zh.params.logo]
+      logoText = "nkid00::journal"
+      logoHomeLink = "/zh/"
+
+    [languages.zh.menu]
+      [[languages.zh.menu.main]]
+        identifier = "0-journal"
+        name = "日志"
+        url = "/zh/posts/"
+      [[languages.zh.menu.main]]
+        identifier = "1-tags"
+        name = "标签"
+        url = "/zh/tags/"
+      [[languages.zh.menu.main]]
+        identifier = "2-rss"
+        name = "订阅"
+        url = "/zh/index.xml"
+      [[languages.zh.menu.main]]
+        identifier = "3-about"
+        name = "关于"
+        url = "/zh/about/"
+      [[languages.zh.menu.main]]
+        identifier = "4-more"
+        name = "更多"
+        url = "https://nkid00.name"
