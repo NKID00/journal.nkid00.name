@@ -5,7 +5,7 @@ author = "NKID00"
 tags = []
 hideComments = false
 draft = true
----
++++
 
 最近搞到了一台没有运行服务可以随意折腾的 4C8G 测试机，安装了 Debian sid 之后没活整了，于是打算更新下内核。编译内核大约需要 10G 硬盘空间。
 
