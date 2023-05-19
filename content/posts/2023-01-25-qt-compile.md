@@ -4,6 +4,7 @@ date = 2023-01-25T23:11:39+08:00
 author = "NKID00"
 tags = ["GNU/Linux", "Qt"]
 hideComments = false
+draft = false
 +++
 
 需要安装 Qt, make 和 bear，先使用 qmake 生成 makefile。
