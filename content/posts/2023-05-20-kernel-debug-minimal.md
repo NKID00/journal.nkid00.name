@@ -2,7 +2,7 @@
 title = "构建最小 Linux 内核调试环境"
 date = 2023-05-20T14:56:24+08:00
 author = "NKID00"
-tags = ["GNU/Linux"， "QEMU", "Kernel", "GDB"]
+tags = ["GNU/Linux", "QEMU", "Kernel", "GDB"]
 hideComments = false
 draft = false
 +++
