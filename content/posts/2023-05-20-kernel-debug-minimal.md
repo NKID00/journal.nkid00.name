@@ -17,7 +17,7 @@ draft = false
 sudo apt install build-essential flex bison bc libelf-dev libssl-dev libncurses-dev lz4 wget bear
 ```
 
-从[官网](https://www.kernel.org/)下载内核源码，这里使用最新的 6.4-rc2 版本：
+下载内核源码，这里使用最新的 6.4-rc2 版本：
 
 ```sh
 wget 'https://git.kernel.org/torvalds/t/linux-6.4-rc2.tar.gz'
@@ -25,16 +25,17 @@ tar xf linux-6.4-rc2.tar.gz
 cd linux-6.4-rc2
 ```
 
-设置选项让 make 吃光多核：
-
-```sh
-export MAKEFLAGS="-j$(nproc)"
-```
-
 清理源码树，删除之前的所有配置和构建结果：
 
 ```sh
 make mrproper
+```
+
+设置选项让 make 吃光多核并且在 build 目录下构建：
+
+```sh
+mkdir build
+export MAKEFLAGS="-j$(nproc) O=build"
 ```
 
 设置编译选项，先用默认选项加 debug：
@@ -58,14 +59,16 @@ make nconfig
 
 ```
 General setup  --->
-    Kernel compression mode (LZ4)  --->
+    Kernel compression mode (Gzip)  --->
         <X> LZ4  # 使用 LZ4 压缩内核（夹带私货 :P）
     [ ] Initial RAM filesystem and RAM disk (initramfs/initrd) support
     [ ] Preserve cpio archive mtimes in initramfs
 
 Processor type and features  --->
     [ ] Symmetric multi-processing support  # 虚拟机只用单核便于调试
-    [ ] CPU microcode loading support  # 虚拟机不需要加载 CPU 微码
+    [ ] Enable MPS table
+    [ ] Support for extended (non-PC) x86 platforms
+    [ ] CPU microcode loading support
     [ ]   Randomize the address of the kernel image (KASLR)  # 取消内核地址随机化便于调试
 
 [ ] Mitigations for speculative execution vulnerabilities  ----
@@ -74,9 +77,9 @@ Device Drivers
     < > PCCard (PCMCIA/CardBus) support  ----
     [*] Block devices  --->
         <*>   RAM block device support  # 不选这个会无法挂载 RAM 块设备而 Kernel Panic
+    < > Serial ATA and Parallel ATA drivers (libata)  ----
     SCSI device support  --->
         < > SCSI device support
-    < > Serial ATA and Parallel ATA drivers (libata)  ----
     [ ] Multiple devices driver support (RAID and LVM)  ----
     [ ] Macintosh device drivers  ----
     [*] Network device support  --->
@@ -86,6 +89,7 @@ Device Drivers
         < >   MDIO bus device drivers  ----
         < >   USB Network Adapters  ----
         [ ]   Wireless LAN  ----
+    [ ] Watchdog Timer Support  ----
     Graphics support  ---
         < > /dev/agpgart (AGP Support)  ----
         < > Direct Rendering Manager (XFree86 4.1.0 and higher DRI support)  ----
@@ -100,12 +104,15 @@ Device Drivers
     [ ]   Wireless  ----
 
 Security options  --->
-    [ ] Enable different security models
+    [ ] Socket and Networking Security Hooks
+    [ ] NSA SELinux Support
+    [ ] Integrity subsystem
 
 # 取消 ext4 支持，启用 Btrfs 支持（继续夹带私货 :P）
 File systems  --->
     < > The Extended 4 (ext4) filesystem
     <*> Btrfs filesystem support
+    [*]   Btrfs POSIX Access Control Lists
     CD-ROM/DVD Filesystems  --->
         < > ISO 9660 CDROM file system support
     DOS/FAT/EXFAT/NT Filesystems  --->
@@ -115,11 +122,39 @@ File systems  --->
     [ ] Network File Systems  ----
 ```
 
-编译，顺便生成 clangd 需要的编译数据库 `compile_commands.json`：
+编译，顺便生成 clangd 需要的编译数据库 `compile_commands.json`（因为前面删了很多选项所以挺快的，R7 4800U -j16 花了大概 5 分钟）：
 
 ```sh
 bear -- make all
 ```
+
+生成 GDB 辅助脚本：
+
+```sh
+make scripts_gdb
+```
+
+## Clangd
+
+内核会用到大量 GNU C 语言扩展和一些 clangd 不支持的编译选项，所以需要在源码树根目录下加一个 `.clangd` 文件填入以下内容消除报错：
+
+```yaml
+CompileFlags:
+  Add:
+  - -Wno-gnu
+  Remove: 
+  - -mpreferred-stack-boundary=3
+  - -mindirect-branch=thunk-extern
+  - -mindirect-branch-register
+  - -mindirect-branch-cs-prefix
+  - -mfunction-return=thunk-extern
+  - -fno-allow-store-data-races
+  - -fconserve-stack
+  - -mrecord-mcount
+  - -ftrivial-auto-var-init=zero
+```
+
+然后就可以愉快地用 clangd 看代码了，好耶！
 
 ## 根目录
 
@@ -194,12 +229,13 @@ apk upgrade
 apk add openrc util-linux
 ```
 
-添加服务并启用串口终端并自动登录：
+添加服务，启用串口终端和自动登录，自动挂载 sysfs：
 
 ```sh
 rc-update add networking
 rc-update add hostname
 sed -i -r -e 's/#ttyS0.*/ttyS0::respawn:\/sbin\/agetty --autologin root --noclear ttyS0 115200 vt100/' /etc/inittab
+echo 'sysfs /sys sysfs rw,nosuid,nodev,noexec,relatime 0 0' >>/etc/fstab
 ```
 
 退出 chroot，卸载镜像（非常重要！文件系统同时被两个系统挂载会出事）：
@@ -222,15 +258,31 @@ sudo apt install qemu-system
 ```sh
 sudo qemu-system-x86_64 \
   -enable-kvm -cpu host -m 1G -nographic  `# 单核，1G 内存，无图形界面` \
-  -kernel linux-6.4-rc2/arch/x86_64/boot/bzImage \
-  -append "root=/dev/vda rw console=ttyS0"  `# 附加内核选项` \
+  -kernel linux-6.4-rc2/build/arch/x86_64/boot/bzImage \
+  -append "root=/dev/vda rw console=ttyS0 tsc=reliable"  `# 内核参数：指定根目录，串口终端，强制设定时钟源` \
   -drive file=rootfs.img,format=raw,if=virtio  `# 根目录` \
   -nic user,model=virtio  `# 网卡` \
-  -s  `# 在 1234 端口上启用 GDB 远程调试`
+  -s  `# 在端口 1234 上启用 GDB 远程调试`
 ```
 
 令人安心的 Alpine Linux shell 很快会弹出来。
 
 ## GDB
 
-待补完
+```sh
+sudo apt install gdb
+```
+
+允许自动加载辅助脚本：
+
+```sh
+echo "add-auto-load-safe-path $(realpath linux-6.4-rc2/build/vmlinux-gdb.py)" >> ~/.gdbinit
+```
+
+启动 GDB 加载内核调试符号并附加远程调试：
+
+```sh
+gdb -ex 'target remote :1234' linux-6.4-rc2/build/vmlinux
+```
+
+然后就可以开始调试了捏。
