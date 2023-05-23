@@ -85,8 +85,8 @@ paginate = 10
         name = "Tags"
         url = "/tags/"
       [[languages.en.menu.main]]
-        identifier = "2-rss"
-        name = "RSS"
+        identifier = "2-feed"
+        name = "Feed"
         url = "/index.xml"
       [[languages.en.menu.main]]
         identifier = "3-about"
@@ -128,7 +128,7 @@ paginate = 10
         name = "标签"
         url = "/zh/tags/"
       [[languages.zh.menu.main]]
-        identifier = "2-rss"
+        identifier = "2-feed"
         name = "订阅"
         url = "/zh/index.xml"
       [[languages.zh.menu.main]]

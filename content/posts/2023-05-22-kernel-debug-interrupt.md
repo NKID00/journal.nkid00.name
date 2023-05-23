@@ -67,7 +67,7 @@ Temporary breakpoint 2 at 0xffffffff81293bf0: file ../fs/notify/fsnotify.c, line
 (gdb) c
 Continuing.
 
-Temporary breakpoint 4, fsnotify (mask=mask@entry=131072, data=data@entry=0xffff88800621ef50, data_type=data_type@entry=1, dir=dir@entry=0xffff88
+Temporary breakpoint 2, fsnotify (mask=mask@entry=131072, data=data@entry=0xffff88800621ef50, data_type=data_type@entry=1, dir=dir@entry=0xffff88
 8003ea86f0, file_name=file_name@entry=0x0, inode=0xffff88800502b080, cookie=0) at ../fs/notify/fsnotify.c:486
 486             struct fsnotify_iter_info iter_info = {};
 ```
