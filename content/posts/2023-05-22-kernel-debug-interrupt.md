@@ -7,11 +7,11 @@ hideComments = false
 draft = false
 +++
 
-GDB 步进调试内核时常会遇到中断，此时执行流会到中断处理程序中而难以调试，比如：
+如果启用了 KVM 加速，GDB 步进调试内核时常会遇到中断，此时执行流会到中断处理程序中而难以调试，比如：
 
 ```
 (gdb) n
-__sysvec_apic_timer_interrupt (regs=<optimised out>) at ../arch/x86/kernel/apic/apic.c:1111                                                      │portal on /run/user/1000/doc type fuse.portal (rw,nosuid,nodev,re
+__sysvec_apic_timer_interrupt (regs=<optimised out>) at ../arch/x86/kernel/apic/apic.c:1111
 1111            trace_local_timer_entry(LOCAL_TIMER_VECTOR);
 ```
 
@@ -49,7 +49,7 @@ Breakpoint 1, common_interrupt_return () at ../arch/x86/entry/entry_64.S:712
 
 ## 聪明办法
 
-后来发现直接在下一条语句下个临时断点就行了：
+直接在下一条语句下个临时断点就行了：
 
 ```
 (gdb) c
@@ -72,4 +72,8 @@ Temporary breakpoint 2, fsnotify (mask=mask@entry=131072, data=data@entry=0xffff
 486             struct fsnotify_iter_info iter_info = {};
 ```
 
-好简单。
+好简单，但可能在一些情况下（比如说执行到函数尾没有下一条语句了）会出事。
+
+# 暴力办法
+
+关掉 KVM 并默默忍受缓慢的执行速度。

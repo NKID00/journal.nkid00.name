@@ -257,7 +257,16 @@ sudo apt install qemu-system
 
 ```sh
 sudo qemu-system-x86_64 \
-  -enable-kvm -cpu host -m 1G -nographic  `# 单核，1G 内存，无图形界面` \
+  -enable-kvm -cpu host -m 1G -nographic  `# 启用 KVM，单核，1G 内存，无图形界面` \
+  -kernel linux-6.4-rc2/build/arch/x86_64/boot/bzImage \
+  -append "root=/dev/vda rw console=ttyS0 tsc=reliable"  `# 内核参数：指定根目录，串口终端，强制设定时钟源` \
+  -drive file=rootfs.img,format=raw,if=virtio  `# 根目录` \
+  -nic user,model=virtio  `# 网卡` \
+  -s  `# 在端口 1234 上启用 GDB 远程调试`
+
+# 或者不使用 kvm
+sudo qemu-system-x86_64 \
+  -cpu max -m 1G -nographic  `# 单核，1G 内存，无图形界面` \
   -kernel linux-6.4-rc2/build/arch/x86_64/boot/bzImage \
   -append "root=/dev/vda rw console=ttyS0 tsc=reliable"  `# 内核参数：指定根目录，串口终端，强制设定时钟源` \
   -drive file=rootfs.img,format=raw,if=virtio  `# 根目录` \
@@ -286,3 +295,5 @@ gdb -ex 'target remote :1234' linux-6.4-rc2/build/vmlinux
 ```
 
 然后就可以开始调试了捏。
+
+坑：如果启动虚拟机时启用了 KVM，调试时可能会来中断，但不启用 KVM 则很慢。
